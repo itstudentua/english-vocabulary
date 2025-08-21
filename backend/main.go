@@ -5,16 +5,16 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"github.com/joho/godotenv" // for local use .env (without docker)
+	//"github.com/joho/godotenv" // for local use .env (without docker)
 )
 
 //for local use .env (without docker)
-func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file:", err)
-	}
-}
+// func init() {
+// 	err := godotenv.Load()
+// 	if err != nil {
+// 		log.Fatal("Error loading .env file:", err)
+// 	}
+// }
 
 func main() {
 	initDB()
