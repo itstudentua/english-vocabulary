@@ -58,7 +58,6 @@ export default function App() {
 
 	//frontend with googleSheet
 	const { googleWords } = useGoogleSheet()
-	console.log(googleWords);
 	
 	const [wordsFront, setWordsFront] = useState<string[]>([])
 
