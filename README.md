@@ -1,5 +1,6 @@
-EnglishVocabulary
+# EnglishVocabulary
 EnglishVocabulary is a web application for processing text and extracting new English words, storing them in a PostgreSQL database, and allowing users to download them as a CSV file. The backend is built with Go, and the frontend can be implemented using modern JavaScript frameworks like React or Vue. The application uses Neon (cloud PostgreSQL) for data storage.
+
 Project Structure
 EnglishVocabulary/
 ├── backend/
@@ -31,31 +32,27 @@ Go: Version 1.18 or higher for the backend.
 Node.js: Version 16 or higher for the frontend (if using React, Vue, etc.).
 Docker: For containerized deployment.
 Neon Account: For the PostgreSQL database (already set up at ep-raspy-bar-a21gedasgfm-pooler.eu-central-1.aws.neon.tech).
-Git: For version control.
 
-Setup for Local Development
-Backend
-
+## Setup for Local Development
+### Backend
 Clone the repository:
-git clone https://github.com/your-username/EnglishVocabulary.git
-cd EnglishVocabulary/backend
+`git clone https://github.com/itstudentua/EnglishVocabulary.git`
+`cd EnglishVocabulary/backend`
 
-
-Install dependencies:
-go mod tidy
-
+#### Install dependencies:
+`go mod tidy`
 
 Create a .env file in the backend/ directory:
-DB_HOST=ep-raspy-bar-a21gedasgfm-pooler.eu-central-1.aws.neon.tech
+```DB_HOST=ep-raspy-bar-a21gedasgfm-pooler.eu-central-1.aws.neon.tech
 DB_PORT=5432
 DB_USER=neondb_owner
 DB_PASSWORD=npg_1Lt7sKfdduHZCw
 DB_NAME=neondb
 DB_SSLMODE=require
-PORT=8080
-
+PORT=8080```
 
 Ensure the init() function is called in main.go:The backend uses the init() function in main.go to load the .env file using godotenv. This is required for local development to read environment variables. Example:
+
 func init() {
     err := godotenv.Load()
     if err != nil {
@@ -65,14 +62,13 @@ func init() {
     loadKnownWords()
 }
 
-
 Run the backend:
-go run .
+`go run .`
 
 The server will start on http://localhost:8080.
 
 
-Frontend
+### Frontend
 
 Navigate to the frontend directory:
 cd frontend
