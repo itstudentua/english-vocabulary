@@ -131,8 +131,7 @@ export default function App() {
 					)}
 
 					{!server && <p>Server with Golang still loading...</p>}
-					{newWords.length > 0 ||
-						(newWordsFront.length > 0 && (
+					{(newWords.length > 0 || newWordsFront.length > 0) && (
 							<div className='flex gap-2 flex-wrap justify-center'>
 								<button
 									className='my-2 bg-green-500 text-white px-4 py-2 rounded'
@@ -174,7 +173,7 @@ export default function App() {
 									Download CSV
 								</button>
 							</div>
-						))}
+						)}
 					{showToast && (
 						<div className='fixed bottom-5 right-5 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg'>
 							✅ Copied to clipboard!
