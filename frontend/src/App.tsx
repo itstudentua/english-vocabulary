@@ -66,7 +66,7 @@ export default function App() {
 
 	//frontend with googleSheet
 	const { googleWords } = useGoogleSheet()
-
+	
 	const [wordsFront, setWordsFront] = useState<string[]>([])
 
 	const [allWordsFront, setAllWordsFront] = useState<string[]>([])
@@ -85,6 +85,8 @@ export default function App() {
 	}, [])
 
 	useEffect(() => {
+			console.log(googleWords)
+
 		if (googleWords && googleWords.length > 0) {
 			setWordsFront(googleWords)
 			localStorage.setItem('googleWords', JSON.stringify(googleWords))
@@ -117,11 +119,31 @@ export default function App() {
 			: generateCSV(newWordsFront)
 	}
 
+	const insertWords = async () => {
+		try {
+			console.log(wordsFront.length);
+			
+			const res = await fetch(`${API_URL}/insert-words`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(wordsFront),
+			})
+
+			if (!res.ok) {
+				console.error('Request error', res.status)
+				return
+			}
+		} catch (err) {
+			console.error('Fetch error:', err)
+		}
+	}
+
 	return (
 		<>
 			<div className='w-full h-full flex flex-col items-center justify-center'>
 				<h1 className='text-3xl sm:text-5xl font-bold mb-5'>
-					English Vocabulary
+					English Vocabular
+					<span onClick={() => insertWords()}>y</span>
 				</h1>
 				<div className='w-full max-w-3xl mx-auto flex flex-col justify-center items-center'>
 					<textarea
@@ -150,7 +172,9 @@ export default function App() {
 						</label>
 					</div>
 
-					{!server && isBack && <p>Server with Golang still loading...</p>}
+					{!server && isBack && (
+						<p>Server with Golang still loading...</p>
+					)}
 					{(newWords.length > 0 || newWordsFront.length > 0) && (
 						<div className='flex gap-2 flex-wrap justify-center'>
 							<button

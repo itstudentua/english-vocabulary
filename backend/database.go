@@ -9,8 +9,9 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 	"sync"
+	"time"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -142,4 +143,56 @@ func DownloadVocabularyHandler(w http.ResponseWriter, r *http.Request) {
 	for _, word := range newWordsFinal {
 		_ = writer.Write([]string{word})
 	}
+}
+
+// Insert words from google sheet to DB
+func insertWordsHandler(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Only POST", http.StatusMethodNotAllowed)
+		return
+	}
+
+
+
+	var words []string
+	if err := json.NewDecoder(r.Body).Decode(&words); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	_, err := dbPool.Exec(context.Background(), "TRUNCATE english_vocabulary RESTART IDENTITY")
+	if err != nil {
+		return
+	}
+
+
+	values := make([]interface{}, 0, len(words))
+	placeholders := make([]string, 0, len(words))
+
+	for i, word := range words {
+		placeholders = append(placeholders, fmt.Sprintf("($%d)", i+1))
+		values = append(values, word)
+	}
+
+	query := fmt.Sprintf("INSERT INTO english_vocabulary (word) VALUES %s", strings.Join(placeholders, ","))
+	_, err = dbPool.Exec(context.Background(), query, values...)
+	if err != nil {
+		http.Error(w, "Error writing to DB", http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("✅ Successfully inserted %d words", len(words))
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("✅ Words added"))
 }

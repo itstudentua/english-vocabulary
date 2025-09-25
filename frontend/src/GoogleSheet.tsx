@@ -24,9 +24,9 @@ export function useGoogleSheet() {
 
 				const helpArray = data.map((el: any) => {
 					return typeof el[0] === 'boolean'
-						? // записываем данные из гуглшит через запятую, [слово, перевод]; потом в таблице будем разделять с помощью split()
-                        el[0].toString() + ',' + el[1]
-						: el[0] + ',' + el[1]
+						? 
+                        el[0].toString()
+						: el[0]
 					// true and false are always boolean type at google sheets
 				})
 
@@ -44,6 +44,7 @@ export function useGoogleSheet() {
 			controller.abort()
 		}
 	}, [])
+	
 
 	return { googleWords }
 }

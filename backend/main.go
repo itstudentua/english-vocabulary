@@ -30,7 +30,8 @@ func main() {
 	// Регистрируем обработчики из database.go
 	http.HandleFunc("/process", ProcessTextHandler)
 	http.HandleFunc("/download-csv", DownloadVocabularyHandler)
-
+	http.HandleFunc("/insert-words", insertWordsHandler)
+	
 	if err := http.ListenAndServe(":"+addr, nil); err != nil {
 		log.Fatal("Server failed:", err)
 	}
