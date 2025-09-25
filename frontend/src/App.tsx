@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useCallback } from 'react'
+import type { ChangeEventHandler } from 'react'
 
 import { useGoogleSheet } from './GoogleSheet'
 import {
@@ -21,6 +22,12 @@ export default function App() {
 	const [showToast, setShowToast] = useState(false)
 	const [server, setServer] = useState(false)
 
+	const [isBack, setIsBack] = useState<boolean>(false)
+
+	const setBack: ChangeEventHandler<HTMLInputElement> = event => {
+		setIsBack(event.target.checked)
+	}
+
 	useEffect(() => {
 		if (text.trim()) {
 			handleProcess(text)
@@ -31,7 +38,6 @@ export default function App() {
 		}
 	}, [text])
 
-
 	const handleProcess = async (txt: string) => {
 		try {
 			const res = await fetch(`${API_URL}/process`, {
@@ -39,7 +45,7 @@ export default function App() {
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ text: txt }),
 			})
-			
+
 			if (!res.ok) {
 				console.error('Request error', res.status)
 				return
@@ -47,9 +53,11 @@ export default function App() {
 
 			const data = await res.json()
 			setServer(true)
-			setNewWords(data.new_words || [])
-			setAllWords(data.all_words || [])
-			setUniqWords(data.uniq_words || [])
+			if (isBack) {
+				setNewWords(data.new_words || [])
+				setAllWords(data.all_words || [])
+				setUniqWords(data.uniq_words || [])
+			}
 		} catch (err) {
 			setServer(false)
 			console.error('Fetch error:', err)
@@ -58,7 +66,7 @@ export default function App() {
 
 	//frontend with googleSheet
 	const { googleWords } = useGoogleSheet()
-	
+
 	const [wordsFront, setWordsFront] = useState<string[]>([])
 
 	const [allWordsFront, setAllWordsFront] = useState<string[]>([])
@@ -86,7 +94,9 @@ export default function App() {
 	const processWords = useCallback(() => {
 		const tempArr = splitStringFunc(text)
 		const uniqWordsArr = makeUniq(tempArr)
-		const googleWordsNew = wordsFront.map((item: string) => item.split(',')[0])
+		const googleWordsNew = wordsFront.map(
+			(item: string) => item.split(',')[0]
+		)
 		const resultArray = uniqueElementsNotInFirst(
 			googleWordsNew,
 			uniqWordsArr
@@ -126,54 +136,60 @@ export default function App() {
 				>
 					Process
 				</button> */}
-					{wordsFront.length === 0 && (
-						<p>Loading Google sheet...</p>
-					)}
+					{wordsFront.length === 0 && <p>Loading Google sheet...</p>}
 
-					{!server && <p>Server with Golang still loading...</p>}
+					<div>
+						<label className='cursor-pointer'>
+							<input
+								className='mr-1 cursor-pointer'
+								type='checkbox'
+								checked={isBack}
+								onChange={setBack}
+							/>
+							{isBack ? 'From DataBase' : 'From Google Sheet'}
+						</label>
+					</div>
+
+					{!server && isBack && <p>Server with Golang still loading...</p>}
 					{(newWords.length > 0 || newWordsFront.length > 0) && (
-							<div className='flex gap-2 flex-wrap justify-center'>
-								<button
-									className='my-2 bg-green-500 text-white px-4 py-2 rounded'
-									onClick={() => {
-										let textToCopy = ''
-										if (newWords.length > 0) {
-											textToCopy = newWords.join('\n')
-										}
-										if (newWordsFront.length > 0) {
-											textToCopy =
-												newWordsFront.join('\n')
-										}
-										if (textToCopy === '') {
-											return
-										}
-										navigator.clipboard
-											.writeText(textToCopy)
-											.then(() => {
-												setShowToast(true)
-												setTimeout(
-													() => setShowToast(false),
-													2000
-												) // авто скрытие через 2 сек
-											})
-											.catch(err => {
-												console.error(
-													'Failed to copy: ',
-													err
-												)
-											})
-									}}
-								>
-									Copy new Vocabulary
-								</button>
-								<button
-									className='my-2'
-									onClick={handleDownload}
-								>
-									Download CSV
-								</button>
-							</div>
-						)}
+						<div className='flex gap-2 flex-wrap justify-center'>
+							<button
+								className='my-2 bg-green-500 text-white px-4 py-2 rounded'
+								onClick={() => {
+									let textToCopy = ''
+									if (newWords.length > 0) {
+										textToCopy = newWords.join('\n')
+									}
+									if (newWordsFront.length > 0) {
+										textToCopy = newWordsFront.join('\n')
+									}
+									if (textToCopy === '') {
+										return
+									}
+									navigator.clipboard
+										.writeText(textToCopy)
+										.then(() => {
+											setShowToast(true)
+											setTimeout(
+												() => setShowToast(false),
+												2000
+											) // авто скрытие через 2 сек
+										})
+										.catch(err => {
+											console.error(
+												'Failed to copy: ',
+												err
+											)
+										})
+								}}
+							>
+								Copy new Vocabulary
+							</button>
+							<button className='my-2' onClick={handleDownload}>
+								Download CSV
+							</button>
+						</div>
+					)}
 					{showToast && (
 						<div className='fixed bottom-5 right-5 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg'>
 							✅ Copied to clipboard!
