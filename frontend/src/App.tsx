@@ -181,7 +181,7 @@ export default function App() {
 								className='my-2 bg-green-500 text-white px-4 py-2 rounded'
 								onClick={() => {
 									let textToCopy = ''
-									if (newWords.length > 0) {
+									if (newWords.length > 0 && isBack) {
 										textToCopy = newWords.join('\n')
 									}
 									if (newWordsFront.length > 0) {
@@ -243,13 +243,15 @@ export default function App() {
 						</>
 					)}
 
-					{newWords.length > 0 && (
+					{(newWords.length > 0 || newWordsFront.length > 0) && (
 						<>
 							<h2 className='mt-4 font-bold'>
 								New vocabulary list:
 							</h2>
 							<ul>
-								{newWords.map((w, i) => (
+								{isBack ? newWords.map((w, i) => (
+									<li key={i}>{w}</li>
+								)) : newWordsFront.map((w, i) => (
 									<li key={i}>{w}</li>
 								))}
 							</ul>
